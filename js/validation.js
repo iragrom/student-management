@@ -43,7 +43,7 @@ function validateForm() {
     // ИСУ
     if (isuId.checkValidity() === false) {
         document.getElementById("error-isuid").textContent =
-            "ИСУ ID должен быть целым числом от 1 до 999999";
+            "ИСУ ID должен быть целым числом от 100000 до 999999";
 
         isValid = false;
     }
