@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Форма студента</title>
 
-    <!-- Favicon-котик (см. комментарий в index.html) -->
+    <!-- Favicon-котик -->
     <link rel="icon"
           href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐈</text></svg>" />
 
@@ -31,33 +31,19 @@
             <a href="index.html" class="btn btn--secondary">← Назад к списку</a>
         </div>
 
-        <!--
-            ============================================================
-            ФОРМА + ЗАЩИТА ОТ ДУРАКА
-            ============================================================
-            novalidate        — отключаем браузерные всплывашки,
-                                атрибуты валидации при этом РАБОТАЮТ
-                                (их читает :invalid/:valid и form.checkValidity()).
-            autocomplete=off  — браузер не подставит случайные данные.
-            spellcheck=false  — не подчёркивать аббревиатуры.
-        -->
+
         <form id="student-form" novalidate autocomplete="off">
 
-            <!-- Скрытое поле: пусто = добавление, число = редактирование -->
+
             <input type="hidden" id="form-student-id" value="" />
 
             <div class="form-grid">
 
-                <!-- ======================= ФИО ======================= -->
+                <!--ФИО -->
                 <div class="form-group form-group--full">
                     <label for="form-fullname">ФИО студента <span class="required">*</span></label>
-                    <!--
-                        required          — не пусто
-                        minlength="2"     — не «А»
-                        maxlength="100"   — не «Война и мир»
-                        pattern           — только буквы, одиночные пробелы и дефис.
-                                            Запрещены: / \ " ' < > @ # $ % и двойные пробелы.
-                    -->
+
+
                     <input type="text" id="form-fullname" name="fullname"
                            placeholder="Иванов Иван Иванович"
                            required
@@ -70,14 +56,10 @@
                     <span class="form-error" id="error-fullname"></span>
                 </div>
 
-                <!-- ======================= ГРУППА ======================= -->
+                <!-- ГРУППА  -->
                 <div class="form-group">
                     <label for="form-group">Группа <span class="required">*</span></label>
-                    <!--
-                        Формат: [A-Za-z][1-6][0-9]{2,3}
-                        Пример: P324, P3224.
-                        Курс — 1..6, номер группы — 2 или 3 цифры.
-                    -->
+
                     <input type="text" id="form-group" name="group"
                            placeholder="P3224"
                            required
@@ -91,16 +73,10 @@
                     <span class="form-error" id="error-group"></span>
                 </div>
 
-                <!-- ======================= ИСУ ID ======================= -->
+                <!-- ИСУ ID-->
                 <div class="form-group">
                     <label for="form-isuid">ИСУ ID <span class="required">*</span></label>
-                    <!--
-                        type="number"        — буквы и слэши не пройдут
-                        inputmode="numeric"  — на телефоне цифровая клавиатура
-                        min/max/step         — 1..999999, только целые
-                        data-unique="isuId"  — МАРКЕР для Человека 2:
-                                               «проверь уникальность ИСУ»
-                    -->
+
                     <input type="number" id="form-isuid" name="isuId"
                            placeholder="123456"
                            required
@@ -109,13 +85,13 @@
                            step="1"
                            inputmode="numeric"
                            data-unique="isuId"
-                           title="Уникальное целое число от 1 до 999999. Не должно повторяться у других студентов." />
+                           title="Уникальное целое число от 100000 до 999999. Не должно повторяться у других студентов." />
                     <span class="form-error" id="error-isuid"></span>
-                    <!-- Отдельное место под ошибку уникальности (заполнит JS) -->
+
                     <span class="form-error" id="error-isuid-unique"></span>
                 </div>
 
-                <!-- ======================= ОБЩЕЖИТИЕ ======================= -->
+                <!--  ОБЩЕЖИТИЕ -->
                 <div class="form-group">
                     <label for="form-dorm">Общежитие <span class="required">*</span></label>
                     <input type="number" id="form-dorm" name="dormNumber"
@@ -129,10 +105,10 @@
                     <span class="form-error" id="error-dorm"></span>
                 </div>
 
-                <!-- ======================= КОМНАТА ======================= -->
+                <!--  КОМНАТА  -->
                 <div class="form-group">
                     <label for="form-room">Комната <span class="required">*</span></label>
-                    <!-- Комната — строго трёхзначная: 100..999 -->
+
                     <input type="number" id="form-room" name="roomNumber"
                            placeholder="101"
                            required
@@ -144,16 +120,10 @@
                     <span class="form-error" id="error-room"></span>
                 </div>
 
-                <!-- ======================= СРОК ЗАСЕЛЕНИЯ ======================= -->
+                <!--  СРОК ЗАСЕЛЕНИЯ -->
                 <div class="form-group">
                     <label for="form-movein">Срок заселения <span class="required">*</span></label>
-                    <!--
-                        type="date"          — нельзя напечатать мусор
-                        min/max              — реалистичные границы
-                        data-age-limit="10"  — МАРКЕР для Человека 2:
-                                               «студент не может жить в общаге
-                                               больше 10 лет».
-                    -->
+
                     <input type="date" id="form-movein" name="moveInDate"
                            required
                            min="2018-01-01"
@@ -163,23 +133,16 @@
                     <span class="form-error" id="error-movein"></span>
                 </div>
 
-                <!-- ======================= ИНОСТРАНЕЦ ======================= -->
+                <!--  ИНОСТРАНЕЦ -->
                 <div class="form-group form-group--checkbox">
                     <label for="form-foreigner">Иностранец</label>
                     <input type="checkbox" id="form-foreigner" name="isForeigner" />
                 </div>
 
-                <!-- ======================= ЗАМЕТКИ ======================= -->
+                <!-- ЗАМЕТКИ  -->
                 <div class="form-group form-group--full">
                     <label for="form-notes">Заметки</label>
-                    <!--
-                        У <textarea> НЕТ pattern (по стандарту HTML5).
-                        Поэтому запрет / \ " ' < > делается JS-ом.
-                        Мы даём ему МАРКЕРЫ:
-                            data-forbid="/&quot;'\\<>"  — что запрещать
-                            data-max-words="50"         — ограничение по словам
-                        maxlength="500" — жёсткое ограничение длины.
-                    -->
+
                     <textarea id="form-notes" name="notes" rows="3"
                               maxlength="500"
                               data-forbid="/&quot;'\\<>"

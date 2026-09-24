@@ -5,21 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Список студентов</title>
 
-    <!--
-        FAVICON — иконка вкладки браузера (котик 🐈).
-        Используем inline-SVG с эмодзи: работает сразу, без файла.
-        Если хочешь свой файл — положи его в assets/favicon.ico
-        и раскомментируй строку ниже.
-    -->
+
     <link rel="icon"
           href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐈</text></svg>" />
-    <!-- <link rel="icon" href="assets/favicon.ico" type="image/x-icon"> -->
 
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-    <!-- ================= НАВИГАЦИЯ ================= -->
+    <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
         <div class="navbar__brand">
             <span class="navbar__icon">🐈</span>
@@ -37,18 +31,16 @@
         </ul>
     </nav>
 
-    <!-- ================= ОСНОВНОЙ КОНТЕНТ ================= -->
+    <!--ОСНОВНОЙ КОНТЕНТ -->
     <main class="container">
 
         <div class="view__header">
             <h1>📋 Список студентов</h1>
-            <!-- Ссылка на форму — работает даже без JS -->
+
             <a href="form.html" class="btn btn--primary">➕ Добавить студента</a>
         </div>
 
-        <!--
-            Обёртка таблицы: на телефоне даст горизонтальную прокрутку.
-        -->
+
         <div class="table-wrapper">
             <table class="student-table" id="student-table">
                 <thead>
@@ -63,24 +55,19 @@
                         <th>Действия</th>
                     </tr>
                 </thead>
-                <!--
-                    Пустой tbody: строки добавит JS Человека 2.
-                    id="student-table-body" — точка подключения.
-                -->
+
                 <tbody id="student-table-body"></tbody>
             </table>
         </div>
 
-        <!-- Заглушка, если нет ни одного студента. JS покажет её при необходимости. -->
+        <!-- Заглушка, если нет ни одного студента. -->
         <div id="empty-state" class="empty-state" style="display:none;">
             <p>😺 Пока нет студентов. Нажмите «Добавить студента», чтобы создать первую запись.</p>
         </div>
 
     </main>
 
-    <!-- ================= ПОДКЛЮЧЕНИЕ СКРИПТОВ ЧЕЛОВЕКА 2 =================
-         defer — скрипты выполнятся после построения HTML.
-         Порядок: storage → students → validation → ui → app. -->
+
     <script src="js/storage.js" defer></script>
     <script src="js/students.js" defer></script>
     <script src="js/validation.js" defer></script>
