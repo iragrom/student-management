@@ -369,7 +369,12 @@ button,
     max-width: 700px;
     margin: 0 auto;
     box-shadow: 0 6px 20px rgba(89, 110, 121, 0.1);
+
+    overflow-wrap: anywhere;
+
+    overflow: hidden;
 }
+
 
 .profile-card p {
     margin: 0.6rem 0;
@@ -385,15 +390,26 @@ button,
     border-bottom: none;
 }
 
+
 .profile-card .label {
     font-weight: 600;
     color: #596e79;
     min-width: 140px;
+    flex-shrink: 0;
 }
 
 .profile-card .value {
+    flex: 1;
+    min-width: 0;
     color: #43565f;
+    overflow-wrap: anywhere;
     word-break: break-word;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.profile-card p:last-child .value {
+    font-size: 1rem;
 }
 
 
