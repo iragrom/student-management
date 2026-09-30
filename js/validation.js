@@ -1,5 +1,78 @@
 //Проверка формы данных
 
+function readForm() {
+    const form = document.getElementById('student-form');
+    if (!form) return null;
+
+    return {
+        fullName:       document.getElementById('form-fullname').value.trim(),
+        group:          document.getElementById('form-group').value.trim().toUpperCase(),
+        isuId:          Number(document.getElementById('form-isuid').value),
+        dormNumber:     Number(document.getElementById('form-dorm').value),
+        roomNumber:     Number(document.getElementById('form-room').value),
+        settlementDate: document.getElementById('form-movein').value,
+        isForeigner:    document.getElementById('form-foreigner').checked,
+        notes:          document.getElementById('form-notes').value.trim()
+    };
+}
+
+
+/** Возвращает id из скрытого поля (для редактирования). */
+function readFormId() {
+    const el = document.getElementById('form-student-id');
+    if (!el) return null;
+    const value = el.value.trim();
+    return value ? Number(value) : null;
+}
+
+
+/** Очищает все сообщения об ошибках под полями. */
+function clearErrors() {
+    const errors = document.querySelectorAll('.form-error');
+    for (let i = 0; i < errors.length; i++) {
+        errors[i].textContent = '';
+    }
+}
+
+
+/** Показывает ошибку под конкретным полем. */
+function showError(fieldKey, message) {
+    const el = document.getElementById('error-' + fieldKey);
+    if (el) el.textContent = message;
+}
+
+
+/** Показывает ошибки, пришедшие с сервера.*/
+function showServerErrors(err) {
+    clearErrors();
+
+    const details = err.details || {};
+
+    const fieldMap = {
+        fullName:       'fullname',
+        group:          'group',
+        isuId:          'isuId',
+        dormNumber:     'dorm',
+        roomNumber:     'room',
+        settlementDate: 'movein',
+        notes:          'notes'
+    };
+
+    let shown = false;
+    for (const serverField in fieldMap) {
+        if (details[serverField]) {
+            let msg = details[serverField];
+            if (Array.isArray(msg)) msg = msg.join(', ');
+            showError(fieldMap[serverField], String(msg));
+            shown = true;
+        }
+    }
+
+    if (!shown) {
+        showError('fullname', err.message);
+    }
+}
+
 function validateForm() {
     const fullName = document.getElementById("form-fullname");
     const group = document.getElementById("form-group");

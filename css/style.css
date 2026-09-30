@@ -238,6 +238,88 @@ button,
     margin-top: 1rem;
 }
 
+/* ФИЛЬТРЫ */
+
+.filters {
+    background: #dfd3c3;
+    border: 1px solid #c7b198;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.filters__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+}
+
+/* Скрытый ряд — раскрывается кнопкой */
+.filters__row--advanced[hidden] { display: none; }
+
+.filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.filters__field label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #596e79;
+    letter-spacing: 0.02em;
+}
+
+.filters__field input,
+.filters__field select {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid #c7b198;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: #f0ece2;
+    color: #596e79;
+    font-family: inherit;
+    transition: border 0.2s, box-shadow 0.2s;
+    min-width: 0;
+}
+
+.filters__field input:focus,
+.filters__field select:focus {
+    outline: none;
+    border-color: #596e79;
+    box-shadow: 0 0 0 3px rgba(199, 177, 152, 0.4);
+}
+
+.filters__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.filters__summary {
+    font-size: 0.9rem;
+    color: #596e79;
+    font-style: italic;
+}
+
+/* Индикатор загрузки */
+.loading {
+    text-align: center;
+    padding: 1rem;
+    color: #596e79;
+    font-style: italic;
+}
+
+
+@media (max-width: 700px) {
+    .filters__actions { justify-content: center; }
+    .filters__actions .btn { flex: 1 1 auto; }
+}
 
 /* ФОРМА */
 
