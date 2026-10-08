@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 
 # Промежуточные обработчики HTTP-запросов и ответов
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', #Добавляет CORS-заголовки
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
