@@ -51,7 +51,7 @@ function showServerErrors(err) {
     const fieldMap = {
         fullName:       'fullname',
         group:          'group',
-        isuId:          'isuId',
+        isuId:          'isuid',
         dormNumber:     'dorm',
         roomNumber:     'room',
         settlementDate: 'movein',
@@ -120,29 +120,6 @@ function validateForm() {
 
         isValid = false;
     }
-
-
-    // Проверка уникальности ИСУ
-    if (isuId.value !== "") {
-        const students = getAllStudents();
-
-        const params = new URLSearchParams(window.location.search);
-        const currentId = params.get("id");
-
-        for (let i = 0; i < students.length; i++) {
-
-            if (
-                students[i].isuId === Number(isuId.value) &&
-                students[i].id !== Number(currentId)
-            ) {
-                document.getElementById("error-isuid-unique").textContent =
-                    "Студент с таким ИСУ ID уже существует";
-
-                isValid = false;
-            }
-        }
-    }
-
 
     // Общежитие
     if (dorm.checkValidity() === false) {

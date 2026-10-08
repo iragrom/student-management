@@ -1,0 +1,24 @@
+[
+    {
+        "fullName": "при ва",
+        "group": "P3124",
+        "isuId": 123456,
+        "dormNumber": 2,
+        "roomNumber": 105,
+        "settlementDate": "2026-10-05",
+        "isForeigner": false,
+        "notes": "",
+        "id": 1
+    },
+    {
+        "fullName": "rjn fghh",
+        "group": "P3125",
+        "isuId": 123458,
+        "dormNumber": 4,
+        "roomNumber": 567,
+        "settlementDate": "2026-09-02",
+        "isForeigner": false,
+        "notes": "",
+        "id": 2
+    }
+]

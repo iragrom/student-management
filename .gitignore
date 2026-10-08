@@ -1,21 +1,35 @@
+
 # Системные файлы
 .DS_Store
 Thumbs.db
 
-# PyCharm / JetBrains
+# IntelliJ IDEA / PyCharm
 .idea/
 *.iml
 *.iws
 *.ipr
 out/
 
-# Python (на всякий случай)
+# Python
 __pycache__/
 *.pyc
+*.pyo
 venv/
 .venv/
 
-# Логи и архивы
+# Django
+db.sqlite3
+db.sqlite3-journal
 *.log
+
+# Временные файлы
+*.tmp
+*.bak
+
+# Архивы
 *.zip
 *.rar
+
+# Локальные настройки и секреты
+.env
+.env.local
