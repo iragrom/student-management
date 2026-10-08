@@ -11,11 +11,12 @@ Thumbs.db
 out/
 
 # Python
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
-venv/
-.venv/
+.pytest_cache/
 
 # Django
 db.sqlite3
@@ -33,3 +34,4 @@ db.sqlite3-journal
 # Локальные настройки и секреты
 .env
 .env.local
+.env.*

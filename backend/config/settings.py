@@ -9,6 +9,7 @@
 Документация:
 https://docs.djangoproject.com/en/5.2/topics/settings/
 """
+import os
 
 from pathlib import Path
 
@@ -18,8 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Настройки для разработки
 
-# Секретный ключ Django (оставить значение из своего файла)
-SECRET_KEY = 'ВСТАВЬ_СВОЙ_СУЩЕСТВУЮЩИЙ_КЛЮЧ'
+# Секретный ключ Django
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # Показывать подробные ошибки во время разработки
 DEBUG = True
