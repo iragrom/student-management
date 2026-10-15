@@ -1,54 +1,84 @@
-
+#Проверяет данные, которые приходят от клиента
 from datetime import date
-
 from rest_framework import serializers
+from .models import Student
 
-
-# Проверка данных студента
+#Cобственный класс сериализатора
 class StudentSerializer(serializers.Serializer):
-    fullName = serializers.CharField(min_length=2, max_length=100)
+    id = serializers.IntegerField(read_only=True) #поле доступно для вывода
+
+    fullName = serializers.CharField(   #строковое поле
+        min_length=2,
+        max_length=100
+    )
+
     group = serializers.CharField(max_length=5)
-    isuId = serializers.IntegerField(min_value=100000, max_value=999999)
-    dormNumber = serializers.IntegerField(min_value=1, max_value=10)
-    roomNumber = serializers.IntegerField(min_value=100, max_value=999)
-    settlementDate = serializers.DateField()
-    isForeigner = serializers.BooleanField()
+
+    isuId = serializers.IntegerField(
+        min_value=100000,
+        max_value=999999
+    )
+
+    dormNumber = serializers.IntegerField(
+        min_value=1,
+        max_value=10
+    )
+
+    roomNumber = serializers.IntegerField(
+        min_value=100,
+        max_value=999
+    )
+
+    settlementDate = serializers.DateField() #для календарных дат
+
+    isForeigner = serializers.BooleanField() #поле логического типа
+
     notes = serializers.CharField(
         max_length=500,
-        allow_blank=True,
-        required=False,
+        allow_blank=True, #разрешает пустую строку
+        required=False, #поле необязательно передавать во входных данных
         default=""
     )
 
     # Проверка ФИО
     def validate_fullName(self, value):
-        name = value.replace(" ", "").replace("-", "")
+        name = value.strip()
 
-        if not name or not name.isalpha():
+        if not any(char.isalpha() for char in name):
+            raise serializers.ValidationError(
+                "ФИО должно содержать буквы"
+            )
+
+        if not all(
+            char.isalpha() or char in " -"
+            for char in name
+        ):
             raise serializers.ValidationError(
                 "ФИО может содержать только буквы, пробелы и дефисы"
             )
 
-        return value
+        return name
 
-    # Проверка учебной группы
+    # Проверка группы
     def validate_group(self, value):
+        group = value.upper()
+
         if (
-            len(value) != 5
-            or not value[0].isalpha()
-            or not all(char in "0123456789" for char in value[1:])
+            len(group) != 5
+            or not group[0].isalpha()
+            or not all(char in "0123456789" for char in group[1:])
         ):
             raise serializers.ValidationError(
                 "Группа должна состоять из буквы и четырёх цифр"
             )
 
-        return value.upper()
+        return group
 
     # Проверка даты заселения
     def validate_settlementDate(self, value):
         today = date.today()
 
-        if value.year < 2018 or value.year > 2035:
+        if not 2018 <= value.year <= 2035:
             raise serializers.ValidationError(
                 "Год заселения должен быть от 2018 до 2035"
             )
@@ -72,7 +102,7 @@ class StudentSerializer(serializers.Serializer):
                 "Заметки не могут содержать больше 50 слов"
             )
 
-        forbidden_chars = '/\\"\'<>'
+        forbidden_chars = "/\\*\"<>"
 
         if any(char in value for char in forbidden_chars):
             raise serializers.ValidationError(
@@ -80,3 +110,13 @@ class StudentSerializer(serializers.Serializer):
             )
 
         return value
+
+    # Преобразование модели Student в JSON-представление
+    def to_representation(self, instance):
+        if isinstance(instance, Student):
+            instance = instance.to_dict()
+
+        return super().to_representation(instance)
+
+
+

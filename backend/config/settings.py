@@ -46,7 +46,8 @@ INSTALLED_APPS = [
 
 # Промежуточные обработчики HTTP-запросов и ответов
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', #Добавляет CORS-заголовки
+    'corsheaders.middleware.CorsMiddleware',
+    'students.middleware.RequestLoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -127,13 +128,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Адреса frontend, которым разрешено обращаться к backend
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
-    "http://localhost:8001",
-    "http://127.0.0.1:8001",
-]
+# Разрешить запросы с любых адресов (для локальной разработки)
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Разрешённые HTTP-методы для междоменных запросов
@@ -151,4 +147,21 @@ CORS_ALLOW_METHODS = [
 REST_FRAMEWORK = {
     # Наш обработчик ошибок API
     "EXCEPTION_HANDLER": "students.exceptions.custom_exception_handler"
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "students.middleware": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
 }

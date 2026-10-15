@@ -8,19 +8,18 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 
 
-# Тестирование REST API студентов
 class StudentAPITest(TestCase):
 
-    # Подготовка данных перед каждым тестом
+    # Подготовка перед каждым тестом
     def setUp(self):
         self.client = APIClient()
 
-        # Создание временного JSON-файла
+        # Временный JSON-файл
         self.temp_dir = tempfile.TemporaryDirectory()
         self.test_file = Path(self.temp_dir.name) / "students.json"
         self.test_file.write_text("[]", encoding="utf-8")
 
-        # Замена настоящего файла на тестовый
+        # Подменяем настоящий файл тестовым
         self.patcher = patch(
             "students.repository.FILE_PATH",
             self.test_file
@@ -30,7 +29,6 @@ class StudentAPITest(TestCase):
         self.addCleanup(self.patcher.stop)
         self.addCleanup(self.temp_dir.cleanup)
 
-        # Данные тестового студента
         self.student = {
             "fullName": "Иванов Иван Иванович",
             "group": "P3224",
@@ -42,14 +40,14 @@ class StudentAPITest(TestCase):
             "notes": "Тестовый студент"
         }
 
-    # Получение списка студентов
+    # 1. Получение пустого списка
     def test_get_students(self):
         response = self.client.get("/api/requests")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, [])
 
-    # Создание студента
+    # 2. Создание студента
     def test_create_student(self):
         response = self.client.post(
             "/api/requests",
@@ -59,8 +57,9 @@ class StudentAPITest(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["isuId"], 345678)
+        self.assertEqual(response.data["id"], 1)
 
-    # Проверка уникальности ИСУ при создании
+    # 3. Уникальность ИСУ при создании
     def test_duplicate_isu(self):
         self.client.post(
             "/api/requests",
@@ -76,9 +75,13 @@ class StudentAPITest(TestCase):
 
         self.assertEqual(response.status_code, 409)
 
-    # Изменение данных студента
+    # 4. Изменение студента
     def test_update_student(self):
-        self.client.post("/api/requests", self.student, format="json")
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
 
         response = self.client.patch(
             "/api/requests/1",
@@ -89,9 +92,13 @@ class StudentAPITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["roomNumber"], 410)
 
-    # Удаление студента
+    # 5. Удаление студента
     def test_delete_student(self):
-        self.client.post("/api/requests", self.student, format="json")
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
 
         response = self.client.delete("/api/requests/1")
 
@@ -100,7 +107,7 @@ class StudentAPITest(TestCase):
         response = self.client.get("/api/requests/1")
         self.assertEqual(response.status_code, 404)
 
-    # Проверка некорректного ИСУ
+    # 6. Некорректный ИСУ
     def test_invalid_isu(self):
         student = self.student.copy()
         student["isuId"] = 123
@@ -112,11 +119,18 @@ class StudentAPITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("isuId", response.data["error"]["details"])
+        self.assertIn(
+            "isuId",
+            response.data["error"]["details"]
+        )
 
-    # Фильтрация через GET
+    # 7. Фильтрация через GET
     def test_filter_get(self):
-        self.client.post("/api/requests", self.student, format="json")
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
 
         response = self.client.get(
             "/api/requests",
@@ -126,9 +140,13 @@ class StudentAPITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
-    # Фильтрация через QUERY
+    # 8. Фильтрация через QUERY
     def test_filter_query(self):
-        self.client.post("/api/requests", self.student, format="json")
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
 
         response = self.client.generic(
             "QUERY",
@@ -144,7 +162,7 @@ class StudentAPITest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
 
-    # Получение несуществующего студента
+    # 9. Несуществующий студент
     def test_student_not_found(self):
         response = self.client.get("/api/requests/999")
 
@@ -154,14 +172,22 @@ class StudentAPITest(TestCase):
             "Студент не найден"
         )
 
-    # Проверка уникальности ИСУ при изменении
+    # 10. Уникальность ИСУ при обновлении
     def test_duplicate_isu_on_update(self):
-        self.client.post("/api/requests", self.student, format="json")
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
 
         second_student = self.student.copy()
         second_student["isuId"] = 456789
 
-        self.client.post("/api/requests", second_student, format="json")
+        self.client.post(
+            "/api/requests",
+            second_student,
+            format="json"
+        )
 
         response = self.client.patch(
             "/api/requests/2",
@@ -171,7 +197,7 @@ class StudentAPITest(TestCase):
 
         self.assertEqual(response.status_code, 409)
 
-    # Проверка запрещённого HTTP-метода
+    # 11. Запрещённый HTTP-метод
     def test_method_not_allowed(self):
         response = self.client.put(
             "/api/requests/1",
@@ -180,4 +206,91 @@ class StudentAPITest(TestCase):
         )
 
         self.assertEqual(response.status_code, 405)
+
+    # 12. Автоматическая генерация ID
+    def test_auto_generated_id(self):
+        first = self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
+
+        second_student = self.student.copy()
+        second_student["isuId"] = 456789
+
+        second = self.client.post(
+            "/api/requests",
+            second_student,
+            format="json"
+        )
+
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(second.status_code, 201)
+        self.assertEqual(first.data["id"], 1)
+        self.assertEqual(second.data["id"], 2)
+
+    # 13. PATCH сохраняет остальные поля
+    def test_patch_preserves_other_fields(self):
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
+
+        response = self.client.patch(
+            "/api/requests/1",
+            {"roomNumber": 410},
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["roomNumber"], 410)
+        self.assertEqual(
+            response.data["fullName"],
+            self.student["fullName"]
+        )
+        self.assertEqual(response.data["isuId"], 345678)
+
+    # 14. Некорректный PATCH не изменяет данные
+    def test_invalid_patch_preserves_student(self):
+        self.client.post(
+            "/api/requests",
+            self.student,
+            format="json"
+        )
+
+        response = self.client.patch(
+            "/api/requests/1",
+            {"roomNumber": -5},
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            "roomNumber",
+            response.data["error"]["details"]
+        )
+
+        saved = self.client.get("/api/requests/1")
+
+        self.assertEqual(saved.status_code, 200)
+        self.assertEqual(saved.data["roomNumber"], 305)
+
+    # 15. Некорректное имя студента
+    def test_invalid_full_name(self):
+        student = self.student.copy()
+        student["fullName"] = "12345"
+
+        response = self.client.post(
+            "/api/requests",
+            student,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            "fullName",
+            response.data["error"]["details"]
+        )
+
 

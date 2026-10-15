@@ -20,5 +20,16 @@
         "isForeigner": false,
         "notes": "",
         "id": 2
+    },
+    {
+        "fullName": "при ир",
+        "group": "P3124",
+        "isuId": 356789,
+        "dormNumber": 3,
+        "roomNumber": 108,
+        "settlementDate": "2026-10-06",
+        "isForeigner": true,
+        "notes": "",
+        "id": 3
     }
 ]

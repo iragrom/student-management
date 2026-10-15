@@ -1,60 +1,160 @@
+#Бизнес-логика
+from rest_framework.exceptions import ValidationError, NotFound
 
+from .exceptions import StudentAlreadyExists
+from .models import Student
 from .repository import (
     get_all_students,
     get_student_by_id,
     add_student,
-    update_student,
+    update_student as repository_update_student,
     delete_student,
-    file_lock
+    file_lock,
 )
 
 
-# Получение списка студентов с фильтрацией
 def get_students(filters):
     students = get_all_students()
-    return filter_students(students, filters)
+    filtered_students = filter_students(students, filters)
+
+    return [
+        Student.from_dict(student)
+        for student in filtered_students
+    ]
 
 
-# Получение студента по ID
 def get_student(student_id):
-    return get_student_by_id(student_id)
+    student_data = get_student_by_id(student_id)
+
+    if student_data is None:
+        raise NotFound("Студент не найден")
+
+    return Student.from_dict(student_data)
 
 
-# Создание студента с проверкой уникальности ИСУ
 def create_student(data):
     with file_lock:
         students = get_all_students()
 
-        for student in students:
-            if student["isuId"] == data["isuId"]:
-                return None
+        if any(
+            student["isuId"] == data["isuId"]
+            for student in students
+        ):
+            raise StudentAlreadyExists()
 
-        return add_student(data)
+        student_data = add_student(data)
+
+        return Student.from_dict(student_data)
 
 
-# Изменение студента с проверкой уникальности ИСУ
-def edit_student(student_id, data):
+def update_student(student_id, data):
     with file_lock:
         students = get_all_students()
 
-        for student in students:
-            if student["isuId"] == data.get("isuId") and student["id"] != student_id:
-                return None
+        existing_student = next(
+            (
+                student
+                for student in students
+                if student["id"] == student_id
+            ),
+            None,
+        )
 
-        return update_student(student_id, data)
+        if existing_student is None:
+            raise NotFound("Студент не найден")
+
+        if "isuId" in data:
+            if any(
+                student["isuId"] == data["isuId"]
+                and student["id"] != student_id
+                for student in students
+            ):
+                raise StudentAlreadyExists()
+
+        updated_data = repository_update_student(
+            student_id,
+            data
+        )
+
+        if updated_data is None:
+            raise NotFound("Студент не найден")
+
+        return Student.from_dict(updated_data)
 
 
-# Удаление студента
 def remove_student(student_id):
-    return delete_student(student_id)
+    with file_lock:
+        deleted = delete_student(student_id)
+
+        if not deleted:
+            raise NotFound("Студент не найден")
+
+        return deleted
 
 
-# Фильтрация студентов по заданным полям
 def filter_students(students, filters):
+    allowed_fields = set(Student.__dataclass_fields__) - {"id"}  #содержит все поля модели, кроме id
+
+    numeric_fields = {
+        "isuId",
+        "dormNumber",
+        "roomNumber",
+    }
+
     for field, value in filters.items():
-        students = [
-            student for student in students
-            if str(student.get(field, "")).lower() == str(value).lower()
-        ]
+        if field not in allowed_fields:
+            raise ValidationError({
+                field: ["Неизвестное поле фильтрации"]
+            })
+
+        if field == "isForeigner":
+            normalized = str(value).strip().lower()
+
+            if normalized in ("true", "1"):
+                expected = True
+            elif normalized in ("false", "0"):
+                expected = False
+            else:
+                raise ValidationError({
+                    field: ["Ожидается true или false"]
+                })
+
+            students = [
+                student
+                for student in students
+                if student.get(field) is expected
+            ]
+
+        elif field in numeric_fields:
+            if (
+                isinstance(value, bool)
+                or isinstance(value, float)
+                or not str(value).strip().isdigit()
+            ):
+                raise ValidationError({
+                    field: ["Ожидается целое число"]
+                })
+
+            expected = int(value)
+
+            students = [
+                student
+                for student in students
+                if student.get(field) == expected
+            ]
+
+        else:
+            expected = str(value).strip().lower()
+
+            students = [
+                student
+                for student in students
+                if str(student.get(field, "")).strip().lower()
+                == expected
+            ]
 
     return students
+
+
+
+

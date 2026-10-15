@@ -1,69 +1,77 @@
 
 from rest_framework.views import exception_handler
-from rest_framework.exceptions import ValidationError, APIException
+from rest_framework.exceptions import APIException, ValidationError
 
 
-# Ошибка: студент с таким ИСУ уже существует
 class StudentAlreadyExists(APIException):
     status_code = 409
-    default_detail = "Студент с таким ИСУ ID уже существует"
+    default_detail = "Студент с таким ИСУ уже существует"
     default_code = "student_already_exists"
 
 
-# Ошибка: запрос невозможно обработать
-class UnprocessableEntity(APIException):
-    status_code = 422
-    default_detail = "Запрос невозможно обработать"
-    default_code = "unprocessable_entity"
+def normalize_errors(value):
+    if isinstance(value, dict):
+        return {
+            str(key): normalize_errors(item)
+            for key, item in value.items()
+        }
+
+    if isinstance(value, (list, tuple)):
+        return [
+            normalize_errors(item)
+            for item in value
+        ]
+
+    return str(value)
 
 
-# Общий обработчик исключений REST API
 def custom_exception_handler(exc, context):
-    # Получаем стандартный ответ DRF
     response = exception_handler(exc, context)
 
-    # Неизвестные исключения передаём Django
     if response is None:
         return None
 
-    # Ошибки валидации данных
     if isinstance(exc, ValidationError):
+        details = normalize_errors(exc.detail)
+
+        if isinstance(details, dict):
+            messages = []
+
+            for field, errors in details.items():
+                if not isinstance(errors, list):
+                    errors = [errors]
+
+                for error in errors:
+                    messages.append(
+                        f"Поле '{field}': {error}"
+                    )
+
+            message = "; ".join(messages)
+
+        elif isinstance(details, list):
+            message = "; ".join(str(error) for error in details)
+
+        else:
+            message = str(details)
+
+    else:
+        message = str(exc.detail)
         details = {}
 
-        # Собираем первую ошибку для каждого поля
-        for field, errors in response.data.items():
-            if isinstance(errors, list):
-                details[field] = str(errors[0])
-            else:
-                details[field] = str(errors)
-
-        response.data = {
-            "error": {
-                "message": "Ошибка валидации",
-                "details": details
+        if isinstance(exc, StudentAlreadyExists):
+            details = {
+                "isuId": [
+                    "Номер ИСУ должен быть уникальным"
+                ]
             }
-        }
 
-    # Ошибка повторяющегося номера ИСУ
-    elif isinstance(exc, StudentAlreadyExists):
-        response.data = {
-            "error": {
-                "message": str(exc.detail),
-                "details": {
-                    "isuId": "Номер ИСУ должен быть уникальным"
-                }
-            }
+    response.data = {
+        "error": {
+            "message": message,
+            "details": details
         }
-
-    # Остальные исключения DRF, например 404
-    else:
-        message = response.data.get("detail", "Ошибка запроса")
-
-        response.data = {
-            "error": {
-                "message": str(message),
-                "details": {}
-            }
-        }
+    }
 
     return response
+
+
